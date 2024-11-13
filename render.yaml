@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: chat-test
+    name: o1test
     env: node
     buildCommand: npm install
     startCommand: npm start
@@ -9,3 +9,5 @@ services:
         value: sk-fveQIqvpNxqnymUXnzw47Ong1t7BAzQNZTyoo96UFjzMdolK
       - key: API_URL
         value: https://openaio1api.com/v1/chat/completions
+      - key: PORT
+        value: 3000
