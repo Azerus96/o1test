@@ -73,6 +73,28 @@
         button:hover {
             background: #0056b3;
         }
+
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        .loading:after {
+            content: '.';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60% { content: '...'; }
+            80%, 100% { content: ''; }
+        }
     </style>
 </head>
 <body>
@@ -87,14 +109,21 @@
     <script>
         async function sendMessage() {
             const input = document.getElementById('messageInput');
+            const button = document.querySelector('button');
             const message = input.value.trim();
             
             if (!message) return;
+
+            // Добавляем индикатор загрузки
+            button.disabled = true;
+            button.innerHTML = 'Sending<span class="loading"></span>';
 
             addMessage(message, 'user');
             input.value = '';
 
             try {
+                console.log('Sending message:', message);
+                
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: {
@@ -108,15 +137,27 @@
                     })
                 });
 
+                console.log('Response status:', response.status);
                 const data = await response.json();
+                console.log('Response data:', data);
+
+                if (!response.ok) {
+                    throw new Error(`Server Error: ${response.status} ${JSON.stringify(data)}`);
+                }
                 
                 if (data.choices && data.choices[0]) {
                     const aiResponse = data.choices[0].message.content;
                     addMessage(aiResponse, 'ai');
+                } else {
+                    throw new Error('Invalid response format');
                 }
             } catch (error) {
-                console.error('Error:', error);
-                addMessage('Error: Failed to get response', 'ai');
+                console.error('Detailed error:', error);
+                addMessage(`Error: ${error.message}`, 'ai');
+            } finally {
+                // Возвращаем кнопку в исходное состояние
+                button.disabled = false;
+                button.innerHTML = 'Send';
             }
         }
 
