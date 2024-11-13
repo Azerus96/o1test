@@ -10,26 +10,21 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// Маршрут для главной страницы
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
-});
-
 app.post('/api/chat', async (req, res) => {
     console.log('Received request:', req.body);
-    console.log('Using API URL:', process.env.API_URL);
-    console.log('Using API Key:', process.env.API_KEY.substring(0, 10) + '...');
 
     try {
-        const response = await fetch(process.env.API_URL, {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${process.env.API_KEY}`,
+                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: "O",
-                messages: req.body.messages
+                model: "o1-preview", // Используем новую модель O1
+                messages: req.body.messages,
+                temperature: 0, // Для более точных ответов
+                max_tokens: 150 // Ограничение длины ответа
             })
         });
 
@@ -53,8 +48,4 @@ app.post('/api/chat', async (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
-    console.log('Environment variables loaded:', {
-        API_URL: process.env.API_URL,
-        API_KEY: 'exists: ' + !!process.env.API_KEY
-    });
 });
