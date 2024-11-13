@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: chat-test
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: API_KEY
+        value: sk-fveQIqvpNxqnymUXnzw47Ong1t7BAzQNZTyoo96UFjzMdolK
+      - key: API_URL
+        value: https://openaio1api.com/v1/chat/completions
